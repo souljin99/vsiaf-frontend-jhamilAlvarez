@@ -1,0 +1,118 @@
+<div class="panel">
+  <h3>ACTIVOS FIJOS</h3>
+
+  <div class="barra">
+    <button (click)="nuevo()" [disabled]="editando()">Nuevo</button>
+    <button (click)="modificar()" [disabled]="editando() || !seleccionado()">Modificar</button>
+    <button (click)="guardar()" [disabled]="!editando()">Guardar</button>
+    <button (click)="cancelar()" [disabled]="!editando()">Cancelar</button>
+    <button (click)="eliminar()" [disabled]="editando() || !seleccionado()">Eliminar</button>
+    <span class="sep"></span>
+    <select [(ngModel)]="estadoNuevo" [disabled]="editando() || !seleccionado()">
+      @for (e of estados(); track e) {
+        <option [value]="e">{{ e }}</option>
+      }
+    </select>
+    <button (click)="cambiarEstado()" [disabled]="editando() || !seleccionado()">Cambiar estado</button>
+  </div>
+
+  @if (mensaje()) {
+    <p [class.error]="esError()" [class.ok]="!esError()">{{ mensaje() }}</p>
+  }
+
+  <div class="formulario">
+    <label>
+      Código
+      <input [value]="seleccionado()?.codActivo ?? '(automático)'" disabled />
+    </label>
+    <label class="ancho">
+      Descripción
+      <input [(ngModel)]="form.descripcion" maxlength="120" [disabled]="!editando()" />
+    </label>
+    <label>
+      Fecha de incorporación
+      <input type="date" [(ngModel)]="form.fechaIncorporacion" [disabled]="!editando()" />
+    </label>
+    <label>
+      Costo
+      <input type="number" min="0.01" step="0.01" [(ngModel)]="form.costo" [disabled]="!editando()" />
+    </label>
+    <label>
+      Estado
+      <select [(ngModel)]="form.estado" [disabled]="!editando()">
+        @for (e of estados(); track e) {
+          <option [value]="e">{{ e }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Grupo contable
+      <select [(ngModel)]="form.codGrupo" [disabled]="!editando()">
+        <option [ngValue]="null">-- seleccionar --</option>
+        @for (g of filtros()?.grupos ?? []; track g.codigo) {
+          <option [ngValue]="g.codigo">{{ g.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Oficina
+      <select [(ngModel)]="form.codOfic" [disabled]="!editando()">
+        <option [ngValue]="null">-- seleccionar --</option>
+        @for (o of filtros()?.oficinas ?? []; track o.codigo) {
+          <option [ngValue]="o.codigo">{{ o.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Responsable
+      <select [(ngModel)]="form.codResp" [disabled]="!editando()">
+        <option [ngValue]="null">-- seleccionar --</option>
+        @for (r of filtros()?.responsables ?? []; track r.codigo) {
+          <option [ngValue]="r.codigo">{{ r.nombre }}</option>
+        }
+      </select>
+    </label>
+  </div>
+
+  <div class="tabla-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Código</th>
+          <th>Descripción</th>
+          <th>Grupo</th>
+          <th>Oficina</th>
+          <th>Responsable</th>
+          <th>Incorporación</th>
+          <th>Estado</th>
+          <th class="num">Costo</th>
+          <th class="num">Valor neto</th>
+        </tr>
+      </thead>
+      <tbody>
+        @if (cargando()) {
+          <tr><td colspan="9">Cargando…</td></tr>
+        } @else if (lista().length === 0) {
+          <tr><td colspan="9">No hay activos registrados</td></tr>
+        }
+        @for (a of lista(); track a.codActivo) {
+          <tr
+            (click)="seleccionar(a)"
+            [class.activa]="seleccionado()?.codActivo === a.codActivo"
+            [class.malo]="a.estado?.toUpperCase() === 'MALO'"
+          >
+            <td>{{ a.codActivo }}</td>
+            <td>{{ a.descripcion }}</td>
+            <td>{{ a.grupo }}</td>
+            <td>{{ a.oficina }}</td>
+            <td>{{ a.responsable }}</td>
+            <td>{{ a.fechaIncorporacion }}</td>
+            <td>{{ a.estado }}</td>
+            <td class="num">{{ a.costo | number: '1.2-2' }}</td>
+            <td class="num">{{ a.valorNeto | number: '1.2-2' }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,151 @@
+<div class="panel">
+  <h3>GENERAR REPORTES</h3>
+
+  <div class="filtros">
+    <label class="ancho">
+      Tipo de reporte
+      <select [(ngModel)]="tipo">
+        @for (t of tipos; track t.valor) {
+          <option [value]="t.valor">{{ t.texto }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Grupo contable
+      <select [(ngModel)]="f.codGrupo">
+        <option [ngValue]="null">Todos</option>
+        @for (g of disponibles()?.grupos ?? []; track g.codigo) {
+          <option [ngValue]="g.codigo">{{ g.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Oficina
+      <select [(ngModel)]="f.codOfic">
+        <option [ngValue]="null">Todas</option>
+        @for (o of disponibles()?.oficinas ?? []; track o.codigo) {
+          <option [ngValue]="o.codigo">{{ o.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Responsable
+      <select [(ngModel)]="f.codResp">
+        <option [ngValue]="null">Todos</option>
+        @for (r of disponibles()?.responsables ?? []; track r.codigo) {
+          <option [ngValue]="r.codigo">{{ r.nombre }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Estado
+      <select [(ngModel)]="f.estado">
+        <option [ngValue]="null">Todos</option>
+        @for (e of disponibles()?.estados ?? []; track e) {
+          <option [value]="e">{{ e }}</option>
+        }
+      </select>
+    </label>
+    <label>
+      Desde
+      <input type="date" [(ngModel)]="f.desde" />
+    </label>
+    <label>
+      Hasta
+      <input type="date" [(ngModel)]="f.hasta" />
+    </label>
+    <label>
+      Fecha de corte
+      <input type="date" [(ngModel)]="f.corte" />
+    </label>
+  </div>
+
+  <div class="barra">
+    <button (click)="generar()" [disabled]="cargando()">Generar</button>
+    <button (click)="descargarCsv()" [disabled]="cargando()">Descargar CSV</button>
+    <button (click)="limpiar()" [disabled]="cargando()">Limpiar filtros</button>
+  </div>
+
+  @if (mensaje()) {
+    <p [class.error]="esError()" [class.ok]="!esError()">{{ mensaje() }}</p>
+  }
+  @if (cargando()) {
+    <p>Generando reporte…</p>
+  }
+
+  @if (resumen(); as r) {
+    <div class="resumen">
+      <div><strong>Entidad:</strong> {{ r.entidad }}</div>
+      <div><strong>Unidad:</strong> {{ r.unidad }}</div>
+      <div><strong>Fecha de corte:</strong> {{ r.fechaCorte }}</div>
+      <div><strong>Cantidad:</strong> {{ r.cantidad }}</div>
+      <div><strong>Costo total:</strong> {{ r.costoTotal | number: '1.2-2' }}</div>
+      <div><strong>Depreciación acum.:</strong> {{ r.depreciacionAcumulada | number: '1.2-2' }}</div>
+      <div><strong>Valor neto:</strong> {{ r.valorNeto | number: '1.2-2' }}</div>
+    </div>
+  }
+
+  @if (tipoGenerado() === 'general') {
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Descripción</th>
+            <th>Grupo</th>
+            <th>Oficina</th>
+            <th>Responsable</th>
+            <th>Incorporación</th>
+            <th>Estado</th>
+            <th class="num">Costo</th>
+            <th class="num">Depreciación</th>
+            <th class="num">Valor neto</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (a of filasGeneral(); track a.codActivo) {
+            <tr>
+              <td>{{ a.codActivo }}</td>
+              <td>{{ a.descripcion }}</td>
+              <td>{{ a.grupo }}</td>
+              <td>{{ a.oficina }}</td>
+              <td>{{ a.responsable }}</td>
+              <td>{{ a.fechaIncorporacion }}</td>
+              <td>{{ a.estado }}</td>
+              <td class="num">{{ a.costo | number: '1.2-2' }}</td>
+              <td class="num">{{ a.depreciacionAcumulada | number: '1.2-2' }}</td>
+              <td class="num">{{ a.valorNeto | number: '1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  } @else if (tipoGenerado()) {
+    <div class="tabla-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Cód.</th>
+            <th>{{ tituloColumna() }}</th>
+            <th class="num">Cantidad</th>
+            <th class="num">Costo total</th>
+            <th class="num">Depreciación</th>
+            <th class="num">Valor neto</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (x of filasResumen(); track x.codigo) {
+            <tr>
+              <td>{{ x.codigo }}</td>
+              <td>{{ x.nombre }}</td>
+              <td class="num">{{ x.cantidad }}</td>
+              <td class="num">{{ x.costoTotal | number: '1.2-2' }}</td>
+              <td class="num">{{ x.depreciacionAcumulada | number: '1.2-2' }}</td>
+              <td class="num">{{ x.valorNeto | number: '1.2-2' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

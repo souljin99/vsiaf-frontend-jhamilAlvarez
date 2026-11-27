@@ -8,6 +8,7 @@ interface MenuItem {
   /** Índice de la letra subrayada (atajo). */
   mnemonic: number;
   action?: 'logout';
+  route?: string;
 }
 
 @Component({
@@ -44,10 +45,10 @@ export class Layout {
   }')`;
 
   protected readonly menu: MenuItem[] = [
-    { label: 'Activos Fijos', mnemonic: 0 },
+    { label: 'Activos Fijos', mnemonic: 0, route: '/activos-fijos' },
     { label: 'Grupos y Auxiliares', mnemonic: 0 },
     { label: 'Oficinas y Responsables', mnemonic: 0 },
-    { label: 'Generar Reportes', mnemonic: 8 },
+    { label: 'Generar Reportes', mnemonic: 8, route: '/reportes' },
     { label: 'Administradores', mnemonic: 1 },
     { label: 'Iniciar sesión', mnemonic: 0, action: 'logout' },
     { label: 'Respaldos BD', mnemonic: 10 },
@@ -60,13 +61,16 @@ export class Layout {
   }
 
   protected select(item: MenuItem): void {
-    if (item.action === 'logout') {
-      this.logout();
-      return;
-    }
-    this.active.set(item.label);
-    this.sidebarOpen.set(false);
+  if (item.action === 'logout') {
+    this.logout();
+    return;
   }
+  this.active.set(item.label);
+  this.sidebarOpen.set(false);
+  if (item.route) {
+    this.router.navigateByUrl(item.route);
+  }
+}
 
   protected logout(): void {
     this.auth.logout();

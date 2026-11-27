@@ -19,5 +19,15 @@ export const routes: Routes = [
       },
     ],
   },
+  {
+    path: 'activos-fijos',
+    loadComponent: () =>
+      import('@features/activos-fijos/activos-fijos/activos-fijos').then((m) => m.ActivosFijos),
+  },
+  {
+    path: 'reportes',
+    loadComponent: () =>
+      import('@features/reportes/generar-reportes/generar-reportes').then((m) => m.GenerarReportes),
+  },
   { path: '**', redirectTo: 'login' },
 ];
